@@ -1,19 +1,25 @@
+// файл gosched/main.go
 package main
 
 import (
 	"fmt"
 	"runtime"
+	"time"
 )
 
 func main() {
-	runtime.GOMAXPROCS(6)
-	for i := 0; i < 10; i++ {
-		go func(j int) {
-			fmt.Println("Starting goroutine: ", j)
-			for {
-			}
-		}(i)
-	}
+	runtime.GOMAXPROCS(1)
+	fmt.Println("Start")
+	go func() {
+		fmt.Println("Start goroutine")
+		for {
+			someWorkload()
+		}
+	}()
 
-	select {}
+	time.Sleep(1 * time.Second)
+	fmt.Println("End")
+}
+
+func someWorkload() {
 }
