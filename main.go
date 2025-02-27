@@ -7,18 +7,38 @@ import (
 
 func main() {
 	semaphore := make(chan int, 3)
+	done := make(chan struct{})
+	i := 0
 
-	for i := 0; i < 10; i++ {
-		semaphore <- i
-		go func() {
-			defer func() {
-				msg := <-semaphore
-				fmt.Println(msg)
-			}()
-			time.Sleep(time.Millisecond * 1000) // some operations
-		}()
+	go func() {
+		for ; ; i++ {
+			semaphore <- i
+			time.Sleep(time.Millisecond * 100)
+		}
+	}()
+	go func() {
+		time.Sleep(time.Millisecond * 1000)
+		done <- struct{}{}
+	}()
+
+	msg := 0
+L:
+	for {
+		select {
+		case msg = <-semaphore:
+			fmt.Println(msg)
+		case <-done:
+			fmt.Println("done")
+			break L
+		default:
+			if msg >= 20 {
+				break L
+			}
+
+			fmt.Println("waiting")
+			time.Sleep(time.Millisecond * 200)
+		}
 	}
-	for len(semaphore) > 0 {
-		time.Sleep(time.Millisecond * 10)
-	}
+
+	fmt.Println("Success")
 }
