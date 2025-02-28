@@ -27,10 +27,10 @@ func (c *Counter) Inc() {
 //}
 
 func BenchmarkCounter_WithPool(b *testing.B) {
-	var counterPool = sync.Pool{
-		New: func() interface{} { return Counter{} },
+	var counterPool = &sync.Pool{
+		New: func() interface{} { return &Counter{} },
 	}
-	counter := counterPool.Get().(Counter)
+	counter := counterPool.Get().(*Counter)
 	for i := 0; i < b.N; i++ {
 		for j := 0; j < 10000; j++ {
 			b.StopTimer()
