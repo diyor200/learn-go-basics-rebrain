@@ -1,0 +1,11 @@
+goos: linux
+goarch: amd64
+pkg: go_basics_rebrain
+cpu: 12th Gen Intel(R) Core(TM) i7-12700
+BenchmarkMySlowFunction-20    	      10	 100268456 ns/op	      12 B/op	       0 allocs/op
+BenchmarkMySlowFunction-20    	      10	 100240722 ns/op	       9 B/op	       0 allocs/op
+BenchmarkMySlowFunction-20    	      10	 100246857 ns/op	      11 B/op	       0 allocs/op
+BenchmarkMySlowFunction-20    	      10	 100245788 ns/op	       9 B/op	       0 allocs/op
+BenchmarkMySlowFunction-20    	      10	 100273957 ns/op	       9 B/op	       0 allocs/op
+PASS
+ok  	go_basics_rebrain	5.525s
