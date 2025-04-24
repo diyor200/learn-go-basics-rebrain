@@ -1,8 +1,6 @@
 Ready to GO!
 
 komandalar:
-go test -bench=.                                        - benchmark testlarni ishga tushiradi
-go test -bench=BenchmarkMySlowFunction                  - bunda aynan qaysi test funksiyani ishga tushirimiz ko'rsatiladi
-go test -bench=BenchmarkMySlowFunction -benchmem        - bunda qo'shimcha ma'lumotlar chiqaradi(1ta operatsiyaga qancha xotiradan joy ajratilganini)
-go test -bench=BenchmarkMySlowFunction -benchtime 30s   - bu funksiyani qancha vaqt yurishini ko'rsatadi
-go test -bench=BenchmarkMySlowFunction -count 2         - bu testni necha marta ishga tushirishni ko'rsatadi
+go test -bench=. -benchtime=5s -cpuprofile=cpu.profile - memprofile=mem.profile   - cpu va mem profillarini saqlash bilan benchmark testni ishga tushirish
+go tool pprof -http=:9090 [profile_file]               - web interfeysda saqlangan profillarni ko'rish (bizning holatda [profile_file] cpu.profile ga teng)
+ 

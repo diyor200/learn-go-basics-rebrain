@@ -1,16 +1,16 @@
 package main
 
-import "testing"
+import (
+	"net/http/httptest"
+	"testing"
+)
 
-func BenchmarkMySlowFunction(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		_ = MySlowFunction()
+func BenchmarkHelloWorld(b *testing.B) {
+	for i := -0; i < b.N; i++ {
+		w := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", "/hello", nil)
 
-	}
-}
+		helloWorld(w, req)
 
-func BenchmarkMyOptimizedFunction(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		_ = MyOptimizedFunction()
 	}
 }
