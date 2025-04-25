@@ -6,9 +6,14 @@ import (
 )
 
 type User struct {
-	Name  string `json:"name"`
-	Age   int    `json:"age"`
-	Class Class  `json:"class"`
+	Name    string  `json:"name"`
+	Age     int     `json:"age"`
+	Class   Class   `json:"class"`
+	Account Account `json:"account"`
+}
+
+type Account struct {
+	Balance int `json:"balance"`
 }
 
 type Class struct {
@@ -21,6 +26,9 @@ func main() {
 		Age:  15,
 		Class: Class{
 			Name: "9e",
+		},
+		Account: Account{
+			Balance: 15,
 		},
 	}
 
@@ -41,7 +49,6 @@ func main() {
 func MapToStruct(mp map[string]interface{}, item interface{}) error {
 	v := reflect.ValueOf(item).Elem()
 	t := v.Type()
-
 	for i := 0; i < v.NumField(); i++ {
 		f := t.Field(i)
 		tag := f.Tag.Get("json")
@@ -52,9 +59,13 @@ func MapToStruct(mp map[string]interface{}, item interface{}) error {
 
 		val := reflect.ValueOf(mapVal)
 
-		if val.Kind() == reflect.Struct {
-			nest := map[string]interface{}{}
-			MapToStruct(nest)
+		if val.Kind() == reflect.Map && v.Field(i).Kind() == reflect.Struct {
+			ptr := reflect.New(v.Field(i).Type())
+			err := MapToStruct(mapVal.(map[string]interface{}), ptr.Interface())
+			if err != nil {
+				return err
+			}
+			v.Field(i).Set(ptr.Elem())
 		}
 
 		if val.Type().AssignableTo(v.Field(i).Type()) {
@@ -75,7 +86,6 @@ func StructToMap(item interface{}) map[string]interface{} {
 
 	var result = map[string]interface{}{}
 	for i := 0; i < val.NumField(); i++ {
-		fmt.Println(v.Field(i).Tag.Get("json"))
 		if v.Field(i).Type.Kind() == reflect.Struct {
 			result[v.Field(i).Tag.Get("json")] = StructToMap(val.Field(i).Interface())
 		} else {
