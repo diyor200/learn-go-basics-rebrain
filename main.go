@@ -38,12 +38,18 @@ func main() {
 		"class": map[string]interface{}{
 			"name": "9e",
 		},
+		"account": map[string]interface{}{
+			"balance": 15,
+		},
 	}
 
 	var r User
-	_ = MapToStruct(m, &r)
+	//_ = MapToStruct(m, &r)
+	_ = MTS(m, &r)
 	fmt.Println(r)
-	fmt.Println(StructToMap(user))
+	//fmt.Println(StructToMap(user))
+	fmt.Println("mp = ", STM(user))
+
 }
 
 func MapToStruct(mp map[string]interface{}, item interface{}) error {
@@ -74,6 +80,64 @@ func MapToStruct(mp map[string]interface{}, item interface{}) error {
 	}
 
 	return nil
+}
+
+func MTS(mp map[string]interface{}, res interface{}) error {
+	v := reflect.ValueOf(res)
+	if v.Kind() == reflect.Ptr {
+		v = reflect.ValueOf(res).Elem()
+	}
+	t := v.Type()
+
+	for i := 0; i < v.NumField(); i++ {
+		key := t.Field(i).Tag.Get("json")
+		if key == "" {
+			key = t.Field(i).Name
+		}
+
+		mpVal, ok := mp[key]
+		if !ok {
+			continue
+		}
+
+		val := reflect.ValueOf(mpVal)
+		if val.Kind() == reflect.Map && v.Field(i).Kind() == reflect.Struct {
+			childType := reflect.New(v.Field(i).Type())
+
+			err := MTS(mpVal.(map[string]interface{}), childType.Interface())
+			if err != nil {
+				return err
+			}
+
+			v.Field(i).Set(childType.Elem())
+		} else if v.Field(i).Kind() == val.Kind() {
+			v.Field(i).Set(val)
+		}
+	}
+
+	return nil
+}
+
+func STM(data interface{}) map[string]interface{} {
+	v := reflect.ValueOf(data)
+	t := v.Type()
+
+	var mp = map[string]interface{}{}
+	for i := 0; i < v.NumField(); i++ {
+		f := t.Field(i)
+		key := f.Tag.Get("json")
+		if key == "" {
+			key = t.Field(i).Name
+		}
+
+		if v.Field(i).Kind() == reflect.Struct {
+			mp[key] = STM(v.Field(i).Interface())
+		} else {
+			mp[key] = v.Field(i).Interface()
+		}
+	}
+
+	return mp
 }
 
 func StructToMap(item interface{}) map[string]interface{} {
